@@ -1,26 +1,36 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /*On my honor, I have neither given nor received unauthorized aid on this assignment*/
 public class MIPSsim {
+	static boolean END = false;
 	static int address=256;
-	int[] Register = new int[32];
-	HashMap<Integer,Integer> Data = new HashMap<Integer,Integer>();
+	static int[] Register = new int[32];
+	static Map<Integer,Integer> Data = new LinkedHashMap<Integer,Integer>();
+	//for disassemble
+	static Map<Integer,Instructions> instr_list = new LinkedHashMap<Integer, Instructions>();
+	//for simulation
+	static int cycle = 0;
+	static List<Instructions> instr_cycle = new ArrayList<Instructions>();
+	static String Info;
 	HashMap<String,String> Instruction1 = new HashMap<String,String>();
 	HashMap<String,String> Instruction2 = new HashMap<String,String>();
-	List<Instructions> instr = new ArrayList<Instructions>();
-	
+
+
 	public MIPSsim(){
 		for(int i=0;i<32;i++){
 			Register[i]= 0;
 		}
-		
+
 		Instruction1.put("0000","J");
 		Instruction1.put("0001","JR");
 		Instruction1.put("0010","BEQ");
@@ -33,7 +43,7 @@ public class MIPSsim {
 		Instruction1.put("1001","SRL");
 		Instruction1.put("1010","SRA");
 		Instruction1.put("1011","NOP");
-		
+
 		Instruction2.put("0000","ADD");
 		Instruction2.put("0001", "SUB");
 		Instruction2.put("0010", "MUL");
@@ -46,113 +56,139 @@ public class MIPSsim {
 		Instruction2.put("1001", "ANDI");
 		Instruction2.put("1010", "ORI");
 		Instruction2.put("1011", "XORI");
-		
+
 	}
-	
+
 	public void disassembly(String inputFile) throws Exception{
 		FileReader fr = new FileReader(new File(inputFile));
 		BufferedReader br = new BufferedReader(fr);
 		String line;
-		boolean end = false;
+
 		String identification="";
 		while((line = br.readLine()) != null){
 			//System.out.println(line);
-			if(!end){
+			if(!END){
 				if(line.substring(0,2).equals("01")){
 					identification = Instruction1.get(line.substring(2, 6));
-					Instructions ins = new Instructions(line,identification,address);
-					instr.add(ins);
+					Instructions ins = new Instructions(line,1,identification,address);
+					//instr.add(ins);
+					instr_list.put(address, ins);
 					System.out.println(identification);
-					if(identification.equals("BREAK")){
-						end = true;
-					}
 				}else{
 					identification = Instruction2.get(line.substring(2, 6));
-					Instructions ins = new Instructions(line,identification,address);
-					instr.add(ins);
+					Instructions ins = new Instructions(line,2,identification,address);
+					//instr.add(ins);
+					instr_list.put(address, ins);
+					System.out.println(identification);
 				}
 			}else{
-				Data.put(address,parseData(line.toCharArray()));
+				Instructions ins = new Instructions(line,3,address);
+				//instr.add(ins);
+				instr_list.put(address, ins);
 			}
-			
+
 			address+=4;
-			
-			
+
 		}
 		br.close();
 		fr.close();
-		
+
 		FileWriter fw = new FileWriter("disassembly.txt");
-		Instructions ins ;
-		for(int i=0;i<instr.size();i++){
-			ins = instr.get(i);
-			fw.write(ins.getLine()+"\t"+ins.getAddress()+"\t"+ins.getName()+"\n");
+
+		for(int add: instr_list.keySet()){
+			fw.write(instr_list.get(add).toString()+"\n");
+			System.out.print(instr_list.get(add).toString()+"\n");
 		}
-		
+
 		fw.flush();
 		fw.close();
 	}
-	
-	public int parseData(char[] line) {
-		// TODO Auto-generated method stub
-		int res=0;
-		int[] word=new int[32];
-		
-		int j=0;
-		for(int i=31;i>-1;i--)
-		{
-			if(line[i]=='1')
-			{
-				word[j]=1;
-			} else {
-				word[j]=0;
-			}
-			j++;
+
+
+
+	public void simulation(int add) throws Exception {
+		END=false;
+		PrintWriter pw=new PrintWriter("simulation.txt");
+		Instructions ins ;
+		while(!END||add!=0){
+			ins = instr_list.get(add);
+			add = ins.execute(add);
+			print(pw,ins);
 		}
-		
-		if(line[0]=='1')
-		{
-			for(j=0;j<31;j++)
-			{
-				if(word[j]==0)
-				{
-					res=res+(int)Math.pow(2, j);
-				}
-				else {
-					
-				}
-			}
-			res=res+1;
-		}
-		else {
-			for(j=0;j<31;j++)
-			{
-				if(word[j]==1)
-				{
-					res=res+(int)Math.pow(2, j);
-				}
-				else {
-					
-				}
-			}
-		}
-		if(line[0]=='1')
-		{
-			res=-res;
-		}
-		return res;
+		pw.close();
+
 	}
 
-	public void simulation(){
-		
+
+	private void print(PrintWriter pw,Instructions ins) {
+		// TODO Auto-generated method stub
+		pw.print("--------------------"+"\n");
+		System.out.print("--------------------"+"\n");
+		pw.print("Cycle:"+MIPSsim.cycle+"\t"+ins.address+"\t"+ins.getPrint_disasb()+"\n");
+		System.out.print("Cycle:"+MIPSsim.cycle+"\t"+ins.address+"\t"+ins.getPrint_disasb()+"\n");
+		pw.print("\n");
+		System.out.print("\n");
+		pw.print("Registers");
+		System.out.print("Registers");
+
+		for(int i=0;i<32;i++)
+		{
+			if(i==0){
+				pw.print("\n"+"R00:");
+				System.out.print("\n"+"R00:");
+			}
+			if(i==8)
+			{
+				pw.print("\n"+"R08:");
+				System.out.print("\n"+"R08:");
+			}
+			if(i==16)
+			{
+				pw.print("\n"+"R16:");
+				System.out.print("\n"+"R16:");
+			}
+			if(i==24)
+			{
+				pw.print("\n"+"R24:");
+				System.out.print("\n"+"R24:");
+			}
+			pw.print("\t"+MIPSsim.Register[i]);
+			System.out.print("\t"+MIPSsim.Register[i]);
+		}
+
+
+		pw.print("\n");
+		System.out.print("\n");
+		pw.print("\n");
+		System.out.print("\n");
+		pw.print("Data");
+		System.out.print("Data");
+
+		int i=0;
+
+		for(Entry<Integer, Integer> entry:MIPSsim.Data.entrySet()){
+			if((i%8)==0)
+			{
+				pw.print("\n"+entry.getKey()+":");
+				System.out.print("\n"+entry.getKey()+":");
+			}
+			pw.print("\t"+entry.getValue());
+			System.out.print("\t"+entry.getValue());
+
+			i++;
+		}
+		pw.print("\n");
+		pw.print("\n");
+		System.out.print("\n");
+		System.out.print("\n");
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		MIPSsim a = new MIPSsim();
 		a.disassembly("sample.txt");
-//		int num = a.parseData("11111111111111111111111111111100".toCharArray());
-//		System.out.println(num);
+		a.simulation(256);
+
 	}
 
 }
