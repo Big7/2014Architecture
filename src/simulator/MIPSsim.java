@@ -1,3 +1,4 @@
+package simulator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -12,18 +13,18 @@ import java.util.Map.Entry;
 
 /*On my honor, I have neither given nor received unauthorized aid on this assignment*/
 public class MIPSsim {
-	static boolean END = false;
-	static int address=256;
-	static int[] Register = new int[32];
-	static Map<Integer,Integer> Data = new LinkedHashMap<Integer,Integer>();
+	public static boolean END = false;
+	public static int address=256;
+	public static int[] Register = new int[32];
+	public static Map<Integer,Integer> Data = new LinkedHashMap<Integer,Integer>();
 	//for disassemble
-	static Map<Integer,Instructions> instr_list = new LinkedHashMap<Integer, Instructions>();
+	public static Map<Integer,Instructions> instr_list = new LinkedHashMap<Integer, Instructions>();
 	//for simulation
-	static int cycle = 0;
-	static List<Instructions> instr_cycle = new ArrayList<Instructions>();
-	static String Info;
-	HashMap<String,String> Instruction1 = new HashMap<String,String>();
-	HashMap<String,String> Instruction2 = new HashMap<String,String>();
+	public static int cycle = 0;
+	public static List<Instructions> instr_cycle = new ArrayList<Instructions>();
+	public static String Info;
+	public HashMap<String,String> Instruction1 = new HashMap<String,String>();
+	public HashMap<String,String> Instruction2 = new HashMap<String,String>();
 
 
 	public MIPSsim(){

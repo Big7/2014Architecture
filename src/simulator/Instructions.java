@@ -1,3 +1,4 @@
+package simulator;
 
 
 
@@ -6,10 +7,11 @@ public class Instructions {
 	String name;
 	int address;
 	int category;
+	public int dst,s1,s2;
 
 	String rest;//除了前6位剩下的26位
-	int[] op_reg = new int[3];
-	int immediate,offset;
+	public int[] op_reg = new int[3];
+	public int immediate,offset;
 	String print_disasb;
 	//instructions, category 1 or 2
 	public Instructions(String line, int category, String name,int address){
@@ -18,6 +20,7 @@ public class Instructions {
 		this.name = name;
 		this.address = address;
 		this.rest = line.substring(6);
+		dst=s1=s2=-1;
 		init();
 	}
 
@@ -37,6 +40,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);//rt
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);//rd
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb ("ADD R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -44,6 +50,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb ("SUB R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -51,6 +60,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("MUL R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -58,6 +70,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("AND R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -65,6 +80,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("OR R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -72,6 +90,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("XOR R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -79,6 +100,9 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("NOR R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 
@@ -86,12 +110,17 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			op_reg[2]=Integer.parseInt(rest.substring(10,15), 2);
+			dst = op_reg[2];
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("SLT R"+op_reg[2]+", R"+op_reg[0]+", R"+op_reg[1]);
 			break;
 		case "ADDI":
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);//rt
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
+			dst = op_reg[1];
+			s1 = op_reg[0];
 			setPrint_disasb("ADDI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
 			break;
 
@@ -99,6 +128,8 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
+			dst = op_reg[1];
+			s1 = op_reg[0];
 			setPrint_disasb("ANDI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
 			break;
 
@@ -106,6 +137,8 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
+			dst = op_reg[1];
+			s1 = op_reg[0];
 			setPrint_disasb("ORI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
 			break;
 
@@ -113,6 +146,8 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
+			dst = op_reg[1];
+			s1 = op_reg[0];
 			setPrint_disasb("XORI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
 			break;
 
@@ -131,6 +166,8 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);//rt
 			offset=4*Integer.parseInt(rest.substring(10,26), 2);//offset
+			s1 = op_reg[0];
+			s2 = op_reg[1];
 			setPrint_disasb("BEQ R"+op_reg[0]+", R"+op_reg[1]+", #"+offset);
 
 			break;
@@ -138,6 +175,7 @@ public class Instructions {
 		case "BLTZ":
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			offset=4*Integer.parseInt(rest.substring(10,26), 2);//offset
+			s1 = op_reg[0];
 			setPrint_disasb("BLTZ R"+op_reg[0]+", #"+offset);
 
 			break;
@@ -145,6 +183,7 @@ public class Instructions {
 		case "BGTZ":
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			offset=4*Integer.parseInt(rest.substring(10,26), 2);//offset
+			s1 = op_reg[0];
 			setPrint_disasb("BGTZ R"+op_reg[0]+", #"+offset);
 
 			break;
@@ -158,16 +197,18 @@ public class Instructions {
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//rs
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);//rs
 			offset=Integer.parseInt(rest.substring(10,26), 2);//offset
+			dst = op_reg[1];
+			s2 = op_reg[0];
 			setPrint_disasb("SW R"+op_reg[1]+", "+offset+"(R"+op_reg[0]+")");
-
 			break;
 
 		case "LW":
 			op_reg[0]=Integer.parseInt(rest.substring(0, 5), 2);//base
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);//rt
 			offset=Integer.parseInt(rest.substring(10,26), 2);//offset
+			dst = op_reg[1];
+			s2 = op_reg[0];
 			setPrint_disasb("LW R"+op_reg[1]+", "+offset+"(R"+op_reg[0]+")");
-
 			break;
 
 		case "SLL":
@@ -175,7 +216,9 @@ public class Instructions {
 			op_reg[1]=Integer.parseInt(rest.substring(10,15), 2);//rd
 			op_reg[2]=Integer.parseInt(rest.substring(15,20), 2);//sa
 			setPrint_disasb("SLL R"+op_reg[1]+", R"+op_reg[0]+", #"+op_reg[2]);
-
+			dst = op_reg[1];
+			s1 = op_reg[0];
+			s2 = op_reg[2];
 			break;
 
 		case "SRL":
@@ -291,7 +334,7 @@ public class Instructions {
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
 			setPrint_disasb("ANDI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
-			MIPSsim.Register[op_reg[2]]=MIPSsim.Register[op_reg[0]]&immediate;
+			MIPSsim.Register[op_reg[1]]=MIPSsim.Register[op_reg[0]]&immediate;
 			return add+4;
 
 		case "ORI":
@@ -299,7 +342,7 @@ public class Instructions {
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
 			setPrint_disasb("ORI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
-			MIPSsim.Register[op_reg[2]]=MIPSsim.Register[op_reg[0]]|immediate;
+			MIPSsim.Register[op_reg[1]]=MIPSsim.Register[op_reg[0]]|immediate;
 			return add+4;
 
 		case "XORI":
@@ -307,7 +350,7 @@ public class Instructions {
 			op_reg[1]=Integer.parseInt(rest.substring(5,10), 2);
 			immediate=Integer.parseInt(rest.substring(10,26), 2);//iv
 			setPrint_disasb("XORI R"+op_reg[1]+", R"+op_reg[0]+", #"+immediate);
-			MIPSsim.Register[op_reg[2]]=MIPSsim.Register[op_reg[0]]^immediate;
+			MIPSsim.Register[op_reg[1]]=MIPSsim.Register[op_reg[0]]^immediate;
 			return add+4;
 
 		case "J":
