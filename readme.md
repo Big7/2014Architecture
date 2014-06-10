@@ -1,4 +1,3 @@
 2014Architecture
 ================
-scoreboarding
-disassemble instructions
+scoreboarding, disassemble instructions
